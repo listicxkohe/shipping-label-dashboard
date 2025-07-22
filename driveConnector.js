@@ -15,7 +15,7 @@ async function authorize() {
   const { installed: creds } = JSON.parse(raw);
   const { client_id, client_secret, redirect_uris } = creds;
   const redirectUri = redirect_uris[0];
-
+  
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,

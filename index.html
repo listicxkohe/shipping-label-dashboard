@@ -4,49 +4,77 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BFC Dashboard</title>
+  <title>Brishti’s Fashion Cloud</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body>
-  <!-- Title Bar -->
-  <div class="title-bar">
-    <button id="options-btn" class="btn-icon">⚙️</button>
-    <span class="title-text">BFC</span>
-    <div class="window-controls">
-      <button id="minimize-btn" class="btn-icon">—</button>
-      <button id="close-btn" class="btn-icon">×</button>
-    </div>
-  </div>
+  <div class="window-wrapper">
 
-  <!-- Options Menu -->
-  <div id="options-menu" class="options-menu">
-    <label><input type="checkbox" id="preview-checkbox" /> Show print preview</label>
-    <button id="update-creds" class="btn btn-update">Update Credentials</button>
-  </div>
-
-  <!-- Main App Area -->
-  <div class="app-container">
-    <div class="dashboard-layout">
-      <!-- Sidebar -->
-      <div class="sidebar">
-        <div class="panel-title">Dashboard</div>
-        <div class="panel-content">
-          <div>Total invoices:</div>
-          <div id="total-files" class="total-files">0</div>
-        </div>
-      </div>
-
-      <!-- Main Content -->
-      <div class="main-content">
-        <div id="file-list" class="file-list"></div>
-        <div class="actions">
-          <button id="delete-all" class="btn btn-delete-all">DELETE ALL</button>
-          <button id="print-all"  class="btn btn-print-all">PRINT ALL</button>
-        </div>
+    <!-- Title Bar -->
+    <div class="title-bar">
+      <button id="options-btn" class="btn-icon">⚙️</button>
+      <span class="title-text">Brishti’s Fashion Cloud</span>
+      <div class="window-controls">
+        <button id="minimize-btn" class="btn-icon">—</button>
+        <button id="close-btn"    class="btn-icon">×</button>
       </div>
     </div>
-  </div>
 
+    <!-- Options Menu -->
+    <div id="options-menu" class="options-menu">
+      <div class="drive-status">
+        Drive connection: <span id="drive-status">Checking…</span>
+      </div>
+      <label><input type="checkbox" id="preview-checkbox" /> Show print preview</label>
+      <button id="update-creds" class="btn btn-update">Update Credentials</button>
+    </div>
+
+
+    <!-- Main App Area -->
+    <div class="app-container">
+      <div class="dashboard-layout">
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <div class="logo-container">
+            <img src="assets/logo.png" alt="Brishti’s Fashion Cloud Logo" />
+          </div>
+          <div class="panel-title">Dashboard</div>
+          <div class="panel-content">
+            <div>Total invoices:</div>
+            <div id="total-files" class="total-files">0</div>
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+
+          <!-- Search Bar -->
+          <div class="search-bar">
+            <input
+              id="search-input"
+              class="search-input"
+              type="text"
+              placeholder="Search invoices..."
+            />
+            <button id="search-clear" class="search-clear">&times;</button>
+          </div>
+
+          <!-- File List -->
+          <div id="file-list" class="file-list"></div>
+
+          <!-- Bulk Actions -->
+          <div class="actions">
+            <button id="delete-all" class="btn btn-delete-all">DELETE ALL</button>
+            <button id="print-all"  class="btn btn-print-all">PRINT ALL</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.window-wrapper -->
   <script src="renderer.js"></script>
 </body>
 </html>
