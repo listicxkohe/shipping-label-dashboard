@@ -11,14 +11,15 @@ const printer = require('./printerManager');
 let mainWindow;
 
 function createWindow() {
-  Menu.setApplicationMenu(null); // hide default menu
+  // Hide the default menu
+  Menu.setApplicationMenu(null);
 
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     frame: false,
-    transparent: true,
-    backgroundColor: '#00000000',
+    transparent: false,             // ← no more transparency
+    backgroundColor: '#faf6fc',     // ← match your CSS background
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -27,10 +28,12 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadFile('index.html');
+  // ← load index.html by its absolute path
+  mainWindow.loadFile(path.join(__dirname, 'index.html'));
+
   mainWindow.webContents.on('did-finish-load', () => {
     refreshAndPush();
-    setInterval(refreshAndPush, 15_000);
+    setInterval(refreshAndPush, 15000);
   });
 }
 
@@ -39,46 +42,35 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-// Poll & push metadata
 async function refreshAndPush() {
   try {
     const files = await listFileMetadata();
     mainWindow.webContents.send('files-list', files);
   } catch (err) {
-    console.error('Error in refreshAndPush:', err);
+    console.error('refreshAndPush error', err);
     mainWindow.webContents.send('files-list', []);
   }
 }
 
-// IPC handlers
-
+// ——————————————————————————————
+// IPC handlers (unchanged)
+// ——————————————————————————————
 ipcMain.on('window-minimize', () => mainWindow.minimize());
 ipcMain.on('window-close',    () => mainWindow.close());
 
-// Return metadata array
 ipcMain.handle('refresh-files', async () => {
   try { return await listFileMetadata(); }
-  catch (err) {
-    console.error('Error in refresh-files:', err);
-    return [];
-  }
+  catch { return []; }
 });
 
-// Test drive connection
 ipcMain.handle('test-drive-connection', async () => {
-  try {
-    await listFileMetadata(); // simply try listing
-    return { connected: true };
-  } catch (e) {
-    console.error('Drive connection test failed:', e);
-    return { connected: false, message: e.message };
-  }
+  try { await listFileMetadata(); return { connected: true }; }
+  catch (e) { return { connected: false, message: e.message }; }
 });
 
-// Print / download on demand
 ipcMain.handle('print-file', async (_e, file, preview) => {
-  const localPath = await downloadFile(file.id, file.name);
-  await printer.printOne(localPath, preview);
+  const local = await downloadFile(file.id, file.name);
+  await printer.printOne(local, preview);
 });
 ipcMain.handle('print-all', async (_e, files, preview) => {
   for (const f of files) {
@@ -87,7 +79,6 @@ ipcMain.handle('print-all', async (_e, files, preview) => {
   }
 });
 
-// Delete
 ipcMain.handle('delete-file', async (_e, file) => {
   await deleteRemoteFile(file.id);
   mainWindow.webContents.send('file-deleted', file.id);
@@ -99,7 +90,6 @@ ipcMain.handle('delete-all', async (_e, files) => {
   }
 });
 
-// Stub for credentials update
 ipcMain.handle('update-credentials', async () => {
-  console.log('[main] update-credentials clicked');
+  console.log('update-credentials clicked');
 });

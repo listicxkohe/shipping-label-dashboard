@@ -1,19 +1,43 @@
 {
   "name": "shipping-label-dashboard",
   "version": "1.0.0",
+  "description": "Brishti's Fashion Cloud desktop dashboard",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder --win"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "devDependencies": {
-    "electron": "^37.2.3"
+    "electron": "^37.2.3",
+    "electron-builder": "^26.0.12"
   },
   "dependencies": {
     "googleapis": "^153.0.0",
     "pdf-to-printer": "^5.6.0"
+  },
+  "build": {
+    "appId": "com.bfc.dashboard",
+    "productName": "Brishti's Fashion Cloud",
+    "files": [
+
+      "index.html",
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "driveConnector.js",
+      "printerManager.js",
+      "config.js",
+      "credentials.json",
+      "package.json",
+      "node_modules/**/*",
+      "assets/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    }
   }
 }
