@@ -1,0 +1,19 @@
+{
+  "name": "shipping-label-dashboard",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "electron": "^37.2.3"
+  },
+  "dependencies": {
+    "googleapis": "^153.0.0",
+    "pdf-to-printer": "^5.6.0"
+  }
+}

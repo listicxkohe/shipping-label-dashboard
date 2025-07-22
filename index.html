@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BFC Dashboard</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <!-- Title Bar -->
+  <div class="title-bar">
+    <button id="options-btn" class="btn-icon">⚙️</button>
+    <span class="title-text">BFC</span>
+    <div class="window-controls">
+      <button id="minimize-btn" class="btn-icon">—</button>
+      <button id="close-btn" class="btn-icon">×</button>
+    </div>
+  </div>
+
+  <!-- Options Menu -->
+  <div id="options-menu" class="options-menu">
+    <label><input type="checkbox" id="preview-checkbox" /> Show print preview</label>
+    <button id="update-creds" class="btn btn-update">Update Credentials</button>
+  </div>
+
+  <!-- Main App Area -->
+  <div class="app-container">
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="panel-title">Dashboard</div>
+        <div class="panel-content">
+          <div>Total invoices:</div>
+          <div id="total-files" class="total-files">0</div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div id="file-list" class="file-list"></div>
+        <div class="actions">
+          <button id="delete-all" class="btn btn-delete-all">DELETE ALL</button>
+          <button id="print-all"  class="btn btn-print-all">PRINT ALL</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
