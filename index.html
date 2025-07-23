@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Brishtis Fashion Cloud</title>
+  <title>Brishti’s Fashion Cloud</title>
 
   <!-- Bubble font -->
   <link
@@ -12,18 +12,19 @@
     rel="stylesheet"
   />
 
-  <!-- 💥 No <base> tag here! 💥 -->
+  <!-- Your CSS -->
   <link rel="stylesheet" href="./assets/styles.css" />
 </head>
 <body>
   <div class="window-wrapper">
+
     <!-- Title Bar -->
     <div class="title-bar">
       <button id="options-btn" class="btn-icon">⚙️</button>
-      <span class="title-text">Brishtis Fashion Cloud</span>
+      <span class="title-text">Brishti’s Fashion Cloud</span>
       <div class="window-controls">
         <button id="minimize-btn" class="btn-icon">—</button>
-        <button id="close-btn" class="btn-icon">×</button>
+        <button id="close-btn"    class="btn-icon">×</button>
       </div>
     </div>
 
@@ -33,20 +34,25 @@
         Drive connection: <span id="drive-status">Checking…</span>
       </div>
       <label>
-        <input type="checkbox" id="preview-checkbox"/> Show print preview
+        <input type="checkbox" id="preview-checkbox" />
+        Show print preview
       </label>
       <button id="update-creds" class="btn btn-update">
         Update Credentials
       </button>
     </div>
 
-    <!-- Main App Area -->
+    <!-- Main Content -->
     <div class="app-container">
       <div class="dashboard-layout">
+
         <!-- Sidebar -->
         <div class="sidebar">
           <div class="logo-container">
-            <img src="./assets/logo.png" alt="Brishtis Fashion Cloud Logo" />
+            <img
+              src="./assets/icon.ico"
+              alt="Brishti’s Fashion Cloud Logo"
+            />
           </div>
           <div class="panel-title">Dashboard</div>
           <div class="panel-content">
@@ -55,20 +61,21 @@
           </div>
         </div>
 
-        <!-- Main Content -->
+        <!-- File List & Actions -->
         <div class="main-content">
-          <!-- Search Bar -->
+
+          <!-- Search -->
           <div class="search-bar">
             <input
               id="search-input"
               class="search-input"
               type="text"
-              placeholder="Search invoices..."
+              placeholder="Search invoices…"
             />
             <button id="search-clear" class="search-clear">×</button>
           </div>
 
-          <!-- File List -->
+          <!-- Files -->
           <div id="file-list" class="file-list"></div>
 
           <!-- Bulk Actions -->
@@ -81,10 +88,11 @@
             </button>
           </div>
         </div>
+
       </div>
     </div>
-  </div>
 
+  </div>
   <script src="./renderer.js"></script>
 </body>
 </html>

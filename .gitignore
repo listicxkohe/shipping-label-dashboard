@@ -2,3 +2,5 @@ downloads/
 node_modules/
 package.json/
 dist/
+token.json/
+credentials.json/

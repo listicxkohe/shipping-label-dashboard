@@ -11,15 +11,15 @@ const printer = require('./printerManager');
 let mainWindow;
 
 function createWindow() {
-  // Hide the default menu
+  // Hide default menu
   Menu.setApplicationMenu(null);
 
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     frame: false,
-    transparent: false,             // ← no more transparency
-    backgroundColor: '#faf6fc',     // ← match your CSS background
+    transparent: true,              // make the window itself transparent
+    backgroundColor: '#00000000',    // fully transparent
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -28,7 +28,7 @@ function createWindow() {
     },
   });
 
-  // ← load index.html by its absolute path
+  // Load your index.html by absolute path
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
   mainWindow.webContents.on('did-finish-load', () => {
@@ -52,9 +52,8 @@ async function refreshAndPush() {
   }
 }
 
-// ——————————————————————————————
-// IPC handlers (unchanged)
-// ——————————————————————————————
+// IPC handlers
+
 ipcMain.on('window-minimize', () => mainWindow.minimize());
 ipcMain.on('window-close',    () => mainWindow.close());
 
@@ -65,13 +64,14 @@ ipcMain.handle('refresh-files', async () => {
 
 ipcMain.handle('test-drive-connection', async () => {
   try { await listFileMetadata(); return { connected: true }; }
-  catch (e) { return { connected: false, message: e.message }; }
+  catch { return { connected: false }; }
 });
 
 ipcMain.handle('print-file', async (_e, file, preview) => {
   const local = await downloadFile(file.id, file.name);
   await printer.printOne(local, preview);
 });
+
 ipcMain.handle('print-all', async (_e, files, preview) => {
   for (const f of files) {
     const p = await downloadFile(f.id, f.name);
@@ -83,6 +83,7 @@ ipcMain.handle('delete-file', async (_e, file) => {
   await deleteRemoteFile(file.id);
   mainWindow.webContents.send('file-deleted', file.id);
 });
+
 ipcMain.handle('delete-all', async (_e, files) => {
   for (const f of files) {
     await deleteRemoteFile(f.id);
@@ -91,5 +92,5 @@ ipcMain.handle('delete-all', async (_e, files) => {
 });
 
 ipcMain.handle('update-credentials', async () => {
-  console.log('update-credentials clicked');
+  console.log('[main] update-credentials clicked');
 });
