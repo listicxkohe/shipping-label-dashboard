@@ -13,64 +13,63 @@
 
     <!-- Title Bar -->
     <div class="title-bar">
-      <button id="options-btn" class="btn-icon">⚙️</button>
-      <span class="title-text">Brishti’s Fashion Cloud</span>
-      <div class="window-controls">
+      <button id="options-btn" class="btn-icon">☰</button>
+      <div class="title-text">Brishti’s Fashion Cloud</div>
+      <div>
+        <button id="refresh-btn"  class="btn-icon">⟳</button>
         <button id="minimize-btn" class="btn-icon">—</button>
-        <button id="close-btn"    class="btn-icon">×</button>
+        <button id="close-btn"    class="btn-icon">✕</button>
       </div>
     </div>
 
-    <!-- Options Menu -->
+    <!-- Options Dropdown -->
     <div id="options-menu" class="options-menu">
       <div class="drive-status">
         Drive connection: <span id="drive-status">Checking…</span>
       </div>
-      <!-- Removed old preview toggle here -->
-      <button id="print-settings-btn" class="btn btn-update">Print Settings</button>
-      <button id="update-creds"       class="btn btn-update">Update Credentials</button>
+      <label class="options-checkbox">
+        <input type="checkbox" id="preview-checkbox"/>
+        Show print preview
+      </label>
+      <button id="update-creds" class="btn btn-update">Update Credentials</button>
     </div>
 
-    <!-- Main App Area -->
+    <!-- Main App -->
     <div class="app-container">
       <div class="dashboard-layout">
         <!-- Sidebar -->
         <div class="sidebar">
           <div class="logo-container">
-            <img src="./assets/icon.ico" alt="Brishti’s Fashion Cloud Logo"/>
+            <img src="./assets/icon.ico" alt="Logo"/>
           </div>
-          <div class="panel-title">Dashboard</div>
-          <div class="panel-content">
-            <div>Total invoices:</div>
-            <div id="total-files" class="total-files">0</div>
-          </div>
+          <div class="panel-title">Total Files</div>
+          <div class="total-files" id="total-files">0</div>
         </div>
 
-        <!-- Main Content -->
+        <!-- File List -->
         <div class="main-content">
-          <!-- Search Bar -->
           <div class="search-bar">
-            <input id="search-input" class="search-input" type="text" placeholder="Search invoices…"/>
+            <input id="search-input" class="search-input" placeholder="Search files…"/>
             <button id="search-clear" class="search-clear">×</button>
           </div>
-
-          <!-- File List -->
-          <div id="file-list" class="file-list"></div>
-
+          <div id="file-list" class="file-list">
+            <!-- Filled dynamically -->
+          </div>
           <div class="actions">
-            <button id="delete-all"    class="btn btn-delete-all">DELETE ALL</button>
+            <button id="delete-all"     class="btn btn-delete-all">DELETE ALL</button>
             <button id="print-selected" class="btn btn-print-all" disabled>PRINT SELECTED</button>
-            <button id="print-all"     class="btn btn-print-all">PRINT ALL</button>
+            <button id="print-all"      class="btn btn-print-all">PRINT ALL</button>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-    <!-- progress overlay -->
-  <div id="progress-overlay" class="progress-overlay hidden">
-    <div class="progress-box">
-      <div id="progress-text">Printing 0 of 0…</div>
+    <!-- Progress Overlay -->
+    <div id="progress-overlay" class="progress-overlay hidden">
+      <div class="progress-box">
+        <button id="cancel-progress" class="btn-icon progress-cancel">✕</button>
+        <div id="progress-text">Printing 0 of 0…</div>
+      </div>
     </div>
   </div>
 

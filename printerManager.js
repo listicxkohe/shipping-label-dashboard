@@ -1,38 +1,52 @@
 // printerManager.js
-const { print, getPrinters } = require('pdf-to-printer');
+const path      = require('path');
+const { execFile } = require('child_process');
+
+// Path to your bundled SumatraPDF.exe
+const SUMATRA = path.join(__dirname, 'assets', 'SumatraPDF.exe');
 
 module.exports = {
-  listPrinters: () => getPrinters(),
+  listPrinters: () => [],
 
   /**
-   * filePath – path to the PDF
-   * opts = { preview, fit, orientation, printer }
+   * Print a single PDF.
+   * - preview=true → opens in default viewer (rejects on error)
+   * - preview=false → Sumatra silent print (swallows all errors)
    */
-  printOne: (filePath, opts = {}) => {
-    const { preview, fit, orientation, printer } = opts;
+  printOne: (pdfPath, opts = {}) => {
+    return new Promise((resolve, reject) => {
+      const absolute = path.resolve(pdfPath);
 
-    if (preview) {
-      return print(filePath, { printDialog: true });
-    }
+      if (opts.preview) {
+        execFile('cmd', ['/c', 'start', '', `"${absolute}"`], err => {
+          if (err) return reject(err);
+          resolve();
+        });
+        return;
+      }
 
-    const args = {};
-    if (printer) args.printer = printer;
-
-    // Build Sumatra print-settings
-    const settings = [];
-    if (fit) settings.push('fit');
-    if (orientation && orientation !== 'auto')
-      settings.push(`orientation:${orientation}`);
-    if (settings.length)
-      args.win32 = ['-print-settings', settings.join(',')];
-
-    return print(filePath, args);
+      execFile(
+        SUMATRA,
+        ['-print-to-default', '-silent', '-print-settings', 'fit', 'landscape', absolute],
+        { windowsHide: true },
+        (err/*, stdout, stderr*/) => {
+          if (err) {
+            // silent mode: swallow ALL errors
+            return resolve();
+          }
+          resolve();
+        }
+      );
+    });
   },
 
-  printAll: async (filePaths, opts) => {
-    for (const fp of filePaths) {
+  /**
+   * Print multiple PDFs in sequence (errors all swallowed if silent).
+   */
+  printAll: async (pdfPaths, opts = {}) => {
+    for (const p of pdfPaths) {
       // eslint-disable-next-line no-await-in-loop
-      await module.exports.printOne(fp, opts);
+      await module.exports.printOne(p, opts);
     }
   }
 };

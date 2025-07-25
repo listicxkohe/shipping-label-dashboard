@@ -1,31 +1,29 @@
 // settingsManager.js
-const fs = require('fs');
+const fs     = require('fs');
 const config = require('./config');
 
-const defaults = {
-  fit: true,
-  orientation: 'auto',  // 'auto' | 'portrait' | 'landscape'
-  printer: null,        // null = system default
-  preview: false
-};
+const defaults = { preview: false };
 
 function loadSettings() {
   try {
     if (fs.existsSync(config.settingsPath)) {
-      return JSON.parse(fs.readFileSync(config.settingsPath, 'utf8'));
+      const data = JSON.parse(fs.readFileSync(config.settingsPath, 'utf8'));
+      return { preview: Boolean(data.preview) };
     }
   } catch (e) {
-    console.warn('[settingsManager] failed to load, using defaults', e);
+    console.error('[settingsManager] load error', e);
   }
   return { ...defaults };
 }
 
-function saveSettings(settings) {
-  const toStore = { ...defaults, ...settings };
+function saveSettings({ preview }) {
   try {
-    fs.writeFileSync(config.settingsPath, JSON.stringify(toStore, null, 2));
+    fs.writeFileSync(
+      config.settingsPath,
+      JSON.stringify({ preview: Boolean(preview) }, null, 2)
+    );
   } catch (e) {
-    console.error('[settingsManager] failed to save', e);
+    console.error('[settingsManager] save error', e);
   }
 }
 

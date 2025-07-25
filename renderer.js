@@ -1,25 +1,28 @@
 // renderer.js
 window.addEventListener('DOMContentLoaded', async () => {
-  // Element refs
-  const minimizeBtn      = document.getElementById('minimize-btn');
-  const closeBtn         = document.getElementById('close-btn');
-  const optionsBtn       = document.getElementById('options-btn');
-  const optionsMenu      = document.getElementById('options-menu');
-  const driveStatusEl    = document.getElementById('drive-status');
-  const printSettingsBtn = document.getElementById('print-settings-btn');
-  const updateCredsBtn   = document.getElementById('update-creds');
+  // Title-bar & options
+  const minimizeBtn     = document.getElementById('minimize-btn');
+  const closeBtn        = document.getElementById('close-btn');
+  const optionsBtn      = document.getElementById('options-btn');
+  const refreshBtn      = document.getElementById('refresh-btn');
+  const optionsMenu     = document.getElementById('options-menu');
+  const driveStatusEl   = document.getElementById('drive-status');
+  const previewCheckbox = document.getElementById('preview-checkbox');
+  const updateCredsBtn  = document.getElementById('update-creds');
 
-  const searchInput      = document.getElementById('search-input');
-  const searchClearBtn   = document.getElementById('search-clear');
-  const fileListEl       = document.getElementById('file-list');
+  // Main UI
+  const searchInput     = document.getElementById('search-input');
+  const searchClearBtn  = document.getElementById('search-clear');
+  const fileListEl      = document.getElementById('file-list');
+  const deleteAllBtn    = document.getElementById('delete-all');
+  const printAllBtn     = document.getElementById('print-all');
+  const printSelBtn     = document.getElementById('print-selected');
+  const totalFilesEl    = document.getElementById('total-files');
 
-  const deleteAllBtn     = document.getElementById('delete-all');
-  const printAllBtn      = document.getElementById('print-all');
-  const printSelBtn      = document.getElementById('print-selected');
-  const totalFilesEl     = document.getElementById('total-files');
-
-  const progressOverlay  = document.getElementById('progress-overlay');
-  const progressText     = document.getElementById('progress-text');
+  // Progress overlay
+  const progressOverlay = document.getElementById('progress-overlay');
+  const progressText    = document.getElementById('progress-text');
+  const cancelProgress  = document.getElementById('cancel-progress');
 
   // State
   let allFiles = [];
@@ -31,13 +34,31 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Options menu toggle
   optionsBtn.onclick  = () => optionsMenu.classList.toggle('visible');
+
+  // Manual refresh
+  refreshBtn.onclick  = async () => {
+    const files = await window.api.refreshFiles();
+    renderFileList(files);
+  };
+
+  // Update Credentials
   updateCredsBtn.onclick = async () => {
     await window.api.updateCredentials();
     await testConnection();
   };
-  printSettingsBtn.onclick = () => window.api.openPrintSettings();
 
-  // Test drive connection
+  // Preview toggle persists
+  previewCheckbox.onchange = async () => {
+    await window.api.savePrintSettings({ preview: previewCheckbox.checked });
+  };
+
+  // Cancel printing
+  cancelProgress.onclick = () => {
+    window.api.cancelPrint();
+    progressOverlay.classList.add('hidden');
+  };
+
+  // Test drive connection status
   async function testConnection() {
     driveStatusEl.textContent = 'Checking…';
     try {
@@ -50,13 +71,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Render file list
+  // Render file list into the UI
   function renderFileList(files) {
     fileListEl.innerHTML = '';
     allFiles = files;
     totalFilesEl.textContent = files.length;
 
-    if (files.length === 0) {
+    if (!files.length) {
       fileListEl.textContent = 'No files found.';
       return;
     }
@@ -66,7 +87,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       row.className = 'file-row';
       row.dataset.id = file.id;
 
-      // Selection checkbox
+      // Checkbox
       const chk = document.createElement('input');
       chk.type = 'checkbox';
       chk.className = 'select-checkbox';
@@ -77,12 +98,11 @@ window.addEventListener('DOMContentLoaded', async () => {
         printSelBtn.disabled = selectedIds.size === 0;
       };
 
-      // Name
+      // Name & date
       const nameSpan = document.createElement('span');
       nameSpan.className = 'file-name';
       nameSpan.textContent = file.name;
 
-      // Date
       const dateSpan = document.createElement('span');
       dateSpan.className = 'file-date';
       dateSpan.textContent = new Date(file.modifiedTime).toLocaleString();
@@ -96,36 +116,32 @@ window.addEventListener('DOMContentLoaded', async () => {
       printBtn.textContent = 'PRINT';
       printBtn.onclick = () => window.api.printFile(file);
 
-      const delBtn = document.createElement('button');
-      delBtn.className = 'btn btn-delete';
-      delBtn.textContent = '🗑️';
-      delBtn.onclick = () => {
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn btn-delete';
+      deleteBtn.textContent = '🗑️';
+      deleteBtn.onclick = () => {
         row.remove();
         window.api.deleteFile(file);
       };
 
-      actions.append(printBtn, delBtn);
-
-      // Assemble
+      actions.append(printBtn, deleteBtn);
       row.append(chk, nameSpan, dateSpan, actions);
       fileListEl.append(row);
     });
 
-    // Enable/disable print-selected
     printSelBtn.disabled = selectedIds.size === 0;
   }
 
-  // Filter helper
+  // Helper to filter by search term
   function getFiltered(term) {
     if (!term) return allFiles;
     term = term.toLowerCase();
     return allFiles.filter(f => f.name.toLowerCase().includes(term));
   }
 
-  // Search logic
+  // Search input
   searchInput.addEventListener('input', e => {
-    const filtered = getFiltered(e.target.value);
-    renderFileList(filtered);
+    renderFileList(getFiltered(e.target.value));
     searchClearBtn.classList.toggle('visible', !!e.target.value);
   });
   searchClearBtn.onclick = () => {
@@ -134,17 +150,17 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderFileList(allFiles);
   };
 
-  // Delete all
+  // Delete all in view
   deleteAllBtn.onclick = async () => {
     const subset = getFiltered(searchInput.value);
     subset.forEach(f => {
-      const r = fileListEl.querySelector(`.file-row[data-id="${f.id}"]`);
-      if (r) r.remove();
+      const row = fileListEl.querySelector(`.file-row[data-id="${f.id}"]`);
+      if (row) row.remove();
     });
     await window.api.deleteAll(subset);
   };
 
-  // Print all w/ progress
+  // Print all
   printAllBtn.onclick = () => {
     const subset = getFiltered(searchInput.value);
     progressOverlay.classList.remove('hidden');
@@ -152,7 +168,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     window.api.printAll(subset);
   };
 
-  // Print selected w/ progress
+  // Print selected
   printSelBtn.onclick = () => {
     const subset = allFiles.filter(f => selectedIds.has(f.id));
     progressOverlay.classList.remove('hidden');
@@ -162,9 +178,16 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Initial load & subscriptions
   await testConnection();
+
+  // Load preview checkbox state
+  const s = await window.api.getPrintSettings();
+  previewCheckbox.checked = s.preview;
+
+  // Populate list
   window.api.getFileList().then(renderFileList);
   window.api.onFileList(renderFileList);
 
+  // Progress updates
   window.api.onPrintProgress(({ completed, total }) => {
     progressText.textContent = `Printing ${completed} of ${total}…`;
     if (completed === total) {
@@ -172,9 +195,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // After cancellation or completion
+  window.api.onPrintCancelled(() => {
+    progressOverlay.classList.add('hidden');
+  });
+
+  // When a file is deleted
   window.api.onFileDeleted(id => {
-    const r = fileListEl.querySelector(`.file-row[data-id="${id}"]`);
-    if (r) r.remove();
+    const row = fileListEl.querySelector(`.file-row[data-id="${id}"]`);
+    if (row) row.remove();
     totalFilesEl.textContent = fileListEl.querySelectorAll('.file-row').length;
   });
 });
