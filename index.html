@@ -1,19 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Brishti’s Fashion Cloud</title>
-
-  <!-- Bubble font -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap"
-    rel="stylesheet"
-  />
-
-  <!-- Your CSS -->
-  <link rel="stylesheet" href="./assets/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="./assets/styles.css"/>
 </head>
 <body>
   <div class="window-wrapper">
@@ -33,26 +26,18 @@
       <div class="drive-status">
         Drive connection: <span id="drive-status">Checking…</span>
       </div>
-      <label>
-        <input type="checkbox" id="preview-checkbox" />
-        Show print preview
-      </label>
-      <button id="update-creds" class="btn btn-update">
-        Update Credentials
-      </button>
+      <!-- Removed old preview toggle here -->
+      <button id="print-settings-btn" class="btn btn-update">Print Settings</button>
+      <button id="update-creds"       class="btn btn-update">Update Credentials</button>
     </div>
 
-    <!-- Main Content -->
+    <!-- Main App Area -->
     <div class="app-container">
       <div class="dashboard-layout">
-
         <!-- Sidebar -->
         <div class="sidebar">
           <div class="logo-container">
-            <img
-              src="./assets/icon.ico"
-              alt="Brishti’s Fashion Cloud Logo"
-            />
+            <img src="./assets/icon.ico" alt="Brishti’s Fashion Cloud Logo"/>
           </div>
           <div class="panel-title">Dashboard</div>
           <div class="panel-content">
@@ -61,38 +46,34 @@
           </div>
         </div>
 
-        <!-- File List & Actions -->
+        <!-- Main Content -->
         <div class="main-content">
-
-          <!-- Search -->
+          <!-- Search Bar -->
           <div class="search-bar">
-            <input
-              id="search-input"
-              class="search-input"
-              type="text"
-              placeholder="Search invoices…"
-            />
+            <input id="search-input" class="search-input" type="text" placeholder="Search invoices…"/>
             <button id="search-clear" class="search-clear">×</button>
           </div>
 
-          <!-- Files -->
+          <!-- File List -->
           <div id="file-list" class="file-list"></div>
 
-          <!-- Bulk Actions -->
           <div class="actions">
-            <button id="delete-all" class="btn btn-delete-all">
-              DELETE ALL
-            </button>
-            <button id="print-all" class="btn btn-print-all">
-              PRINT ALL
-            </button>
+            <button id="delete-all"    class="btn btn-delete-all">DELETE ALL</button>
+            <button id="print-selected" class="btn btn-print-all" disabled>PRINT SELECTED</button>
+            <button id="print-all"     class="btn btn-print-all">PRINT ALL</button>
           </div>
         </div>
-
       </div>
     </div>
-
   </div>
+
+    <!-- progress overlay -->
+  <div id="progress-overlay" class="progress-overlay hidden">
+    <div class="progress-box">
+      <div id="progress-text">Printing 0 of 0…</div>
+    </div>
+  </div>
+
   <script src="./renderer.js"></script>
 </body>
 </html>

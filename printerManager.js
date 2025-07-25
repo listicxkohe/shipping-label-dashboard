@@ -1,23 +1,38 @@
 // printerManager.js
-const { print } = require('pdf-to-printer');
+const { print, getPrinters } = require('pdf-to-printer');
 
 module.exports = {
-  /**
-   * Print a single PDF, optionally showing the system print dialog.
-   * @param {string} filePath
-   * @param {boolean} preview – if true, show the dialog
-   */
-  printOne: (filePath, preview = false) =>
-    print(filePath, preview ? { printDialog: true } : {}),
+  listPrinters: () => getPrinters(),
 
   /**
-   * Print multiple PDFs in sequence, optionally showing the dialog each time.
-   * @param {string[]} filePaths
-   * @param {boolean} preview
+   * filePath – path to the PDF
+   * opts = { preview, fit, orientation, printer }
    */
-  printAll: async (filePaths, preview = false) => {
-    for (const fp of filePaths) {
-      await print(fp, preview ? { printDialog: true } : {});
+  printOne: (filePath, opts = {}) => {
+    const { preview, fit, orientation, printer } = opts;
+
+    if (preview) {
+      return print(filePath, { printDialog: true });
     }
+
+    const args = {};
+    if (printer) args.printer = printer;
+
+    // Build Sumatra print-settings
+    const settings = [];
+    if (fit) settings.push('fit');
+    if (orientation && orientation !== 'auto')
+      settings.push(`orientation:${orientation}`);
+    if (settings.length)
+      args.win32 = ['-print-settings', settings.join(',')];
+
+    return print(filePath, args);
   },
+
+  printAll: async (filePaths, opts) => {
+    for (const fp of filePaths) {
+      // eslint-disable-next-line no-await-in-loop
+      await module.exports.printOne(fp, opts);
+    }
+  }
 };

@@ -1,63 +1,62 @@
 // renderer.js
+window.addEventListener('DOMContentLoaded', async () => {
+  // Element refs
+  const minimizeBtn      = document.getElementById('minimize-btn');
+  const closeBtn         = document.getElementById('close-btn');
+  const optionsBtn       = document.getElementById('options-btn');
+  const optionsMenu      = document.getElementById('options-menu');
+  const driveStatusEl    = document.getElementById('drive-status');
+  const printSettingsBtn = document.getElementById('print-settings-btn');
+  const updateCredsBtn   = document.getElementById('update-creds');
 
-window.addEventListener('DOMContentLoaded', () => {
-  // Element references
-  const fileListEl      = document.getElementById('file-list');
-  const printAllBtn     = document.getElementById('print-all');
-  const deleteAllBtn    = document.getElementById('delete-all');
-  const totalFilesEl    = document.getElementById('total-files');
-  const optionsBtn      = document.getElementById('options-btn');
-  const optionsMenu     = document.getElementById('options-menu');
-  const previewCheckbox = document.getElementById('preview-checkbox');
-  const updateCredsBtn  = document.getElementById('update-creds');
-  const minimizeBtn     = document.getElementById('minimize-btn');
-  const closeBtn        = document.getElementById('close-btn');
-  const searchInput     = document.getElementById('search-input');
-  const searchClearBtn  = document.getElementById('search-clear');
-  const driveStatusEl   = document.getElementById('drive-status');
+  const searchInput      = document.getElementById('search-input');
+  const searchClearBtn   = document.getElementById('search-clear');
+  const fileListEl       = document.getElementById('file-list');
 
-  let previewEnabled = false;
+  const deleteAllBtn     = document.getElementById('delete-all');
+  const printAllBtn      = document.getElementById('print-all');
+  const printSelBtn      = document.getElementById('print-selected');
+  const totalFilesEl     = document.getElementById('total-files');
+
+  const progressOverlay  = document.getElementById('progress-overlay');
+  const progressText     = document.getElementById('progress-text');
+
+  // State
   let allFiles = [];
+  const selectedIds = new Set();
 
   // Window controls
   minimizeBtn.onclick = () => window.api.minimize();
   closeBtn.onclick    = () => window.api.close();
 
   // Options menu toggle
-  optionsBtn.onclick = () => optionsMenu.classList.toggle('visible');
-
-  // Preview toggle
-  previewCheckbox.onchange = () => {
-    previewEnabled = previewCheckbox.checked;
-  };
-
-  // Re-test Drive connection
+  optionsBtn.onclick  = () => optionsMenu.classList.toggle('visible');
   updateCredsBtn.onclick = async () => {
     await window.api.updateCredentials();
-    testConnection();
+    await testConnection();
   };
+  printSettingsBtn.onclick = () => window.api.openPrintSettings();
 
-  // Test & display Drive connection status
+  // Test drive connection
   async function testConnection() {
     driveStatusEl.textContent = 'Checking…';
-    driveStatusEl.style.color = '';
-    const { connected } = await window.api.testDriveConnection();
-    if (connected) {
-      driveStatusEl.textContent = 'Connected';
-      driveStatusEl.style.color = 'green';
-    } else {
-      driveStatusEl.textContent = 'Disconnected';
+    try {
+      const { connected } = await window.api.testDriveConnection();
+      driveStatusEl.textContent = connected ? 'Connected' : 'Disconnected';
+      driveStatusEl.style.color = connected ? 'green' : 'red';
+    } catch {
+      driveStatusEl.textContent = 'Error';
       driveStatusEl.style.color = 'red';
     }
   }
 
-  // Render files into the list
+  // Render file list
   function renderFileList(files) {
     fileListEl.innerHTML = '';
-    const count = Array.isArray(files) ? files.length : 0;
-    totalFilesEl.textContent = count;
+    allFiles = files;
+    totalFilesEl.textContent = files.length;
 
-    if (!count) {
+    if (files.length === 0) {
       fileListEl.textContent = 'No files found.';
       return;
     }
@@ -67,59 +66,67 @@ window.addEventListener('DOMContentLoaded', () => {
       row.className = 'file-row';
       row.dataset.id = file.id;
 
+      // Selection checkbox
+      const chk = document.createElement('input');
+      chk.type = 'checkbox';
+      chk.className = 'select-checkbox';
+      chk.checked = selectedIds.has(file.id);
+      chk.onchange = () => {
+        if (chk.checked) selectedIds.add(file.id);
+        else selectedIds.delete(file.id);
+        printSelBtn.disabled = selectedIds.size === 0;
+      };
+
+      // Name
       const nameSpan = document.createElement('span');
       nameSpan.className = 'file-name';
       nameSpan.textContent = file.name;
 
+      // Date
       const dateSpan = document.createElement('span');
       dateSpan.className = 'file-date';
       dateSpan.textContent = new Date(file.modifiedTime).toLocaleString();
 
+      // Actions
       const actions = document.createElement('div');
       actions.className = 'row-actions';
 
-      // PRINT
-      const pBtn = document.createElement('button');
-      pBtn.className = 'btn btn-print';
-      pBtn.textContent = 'PRINT';
-      pBtn.onclick = () => {
-        window.api.printFile(file, previewEnabled);
-      };
+      const printBtn = document.createElement('button');
+      printBtn.className = 'btn btn-print';
+      printBtn.textContent = 'PRINT';
+      printBtn.onclick = () => window.api.printFile(file);
 
-      // DELETE
-      const dBtn = document.createElement('button');
-      dBtn.className = 'btn btn-delete';
-      dBtn.textContent = '🗑️';
-      dBtn.onclick = () => {
+      const delBtn = document.createElement('button');
+      delBtn.className = 'btn btn-delete';
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => {
         row.remove();
         window.api.deleteFile(file);
       };
 
-      actions.append(pBtn, dBtn);
-      row.append(nameSpan, dateSpan, actions);
+      actions.append(printBtn, delBtn);
+
+      // Assemble
+      row.append(chk, nameSpan, dateSpan, actions);
       fileListEl.append(row);
     });
+
+    // Enable/disable print-selected
+    printSelBtn.disabled = selectedIds.size === 0;
   }
 
-  // Remove a row when notified
-  function removeRowById(id) {
-    const row = fileListEl.querySelector(`.file-row[data-id="${id}"]`);
-    if (row) row.remove();
-    totalFilesEl.textContent = fileListEl.querySelectorAll('.file-row').length;
-  }
-
-  // Substring filter helper
+  // Filter helper
   function getFiltered(term) {
     if (!term) return allFiles;
-    const lower = term.toLowerCase();
-    return allFiles.filter(f => f.name.toLowerCase().includes(lower));
+    term = term.toLowerCase();
+    return allFiles.filter(f => f.name.toLowerCase().includes(term));
   }
 
-  // Live search
+  // Search logic
   searchInput.addEventListener('input', e => {
-    const term = e.target.value;
-    renderFileList(getFiltered(term));
-    searchClearBtn.classList.toggle('visible', term.length > 0);
+    const filtered = getFiltered(e.target.value);
+    renderFileList(filtered);
+    searchClearBtn.classList.toggle('visible', !!e.target.value);
   });
   searchClearBtn.onclick = () => {
     searchInput.value = '';
@@ -127,32 +134,47 @@ window.addEventListener('DOMContentLoaded', () => {
     renderFileList(allFiles);
   };
 
-  // Bulk Print
-  printAllBtn.onclick = async () => {
-    const subset = getFiltered(searchInput.value);
-    if (subset.length) {
-      await window.api.printAll(subset, previewEnabled);
-    }
-  };
-
-  // Bulk Delete
+  // Delete all
   deleteAllBtn.onclick = async () => {
     const subset = getFiltered(searchInput.value);
-    subset.forEach(f => removeRowById(f.id));
-    if (subset.length) {
-      await window.api.deleteAll(subset);
-    }
+    subset.forEach(f => {
+      const r = fileListEl.querySelector(`.file-row[data-id="${f.id}"]`);
+      if (r) r.remove();
+    });
+    await window.api.deleteAll(subset);
   };
 
-  // Initial load & polling
-  testConnection();
-  window.api.getFileList().then(files => {
-    allFiles = files;
-    renderFileList(files);
+  // Print all w/ progress
+  printAllBtn.onclick = () => {
+    const subset = getFiltered(searchInput.value);
+    progressOverlay.classList.remove('hidden');
+    progressText.textContent = `Printing 0 of ${subset.length}…`;
+    window.api.printAll(subset);
+  };
+
+  // Print selected w/ progress
+  printSelBtn.onclick = () => {
+    const subset = allFiles.filter(f => selectedIds.has(f.id));
+    progressOverlay.classList.remove('hidden');
+    progressText.textContent = `Printing 0 of ${subset.length}…`;
+    window.api.printSelected(subset);
+  };
+
+  // Initial load & subscriptions
+  await testConnection();
+  window.api.getFileList().then(renderFileList);
+  window.api.onFileList(renderFileList);
+
+  window.api.onPrintProgress(({ completed, total }) => {
+    progressText.textContent = `Printing ${completed} of ${total}…`;
+    if (completed === total) {
+      setTimeout(() => progressOverlay.classList.add('hidden'), 500);
+    }
   });
-  window.api.onFileList(files => {
-    allFiles = files;
-    renderFileList(getFiltered(searchInput.value));
+
+  window.api.onFileDeleted(id => {
+    const r = fileListEl.querySelector(`.file-row[data-id="${id}"]`);
+    if (r) r.remove();
+    totalFilesEl.textContent = fileListEl.querySelectorAll('.file-row').length;
   });
-  window.api.onFileDeleted(removeRowById);
 });

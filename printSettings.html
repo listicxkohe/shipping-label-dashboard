@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Print Settings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="./assets/styles.css"/>
+  <style>
+    body, html {
+      margin:0; padding:0;
+      width:100%; height:100%;
+      background:transparent;
+      font-family:"Segoe UI", sans-serif;
+    }
+    .settings-container {
+      position:absolute; top:0; left:0; right:0; bottom:0;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(0,0,0,0.1);
+    }
+    .settings-box {
+      width:340px;
+      background: var(--bg-card);
+      border:2px solid var(--accent);
+      border-radius:12px;
+      box-shadow:0 4px 12px var(--shadow);
+      padding:20px;
+      box-sizing:border-box;
+    }
+    .settings-box h2 {
+      margin-top:0; margin-bottom:16px;
+      font-family:'Fredoka One', cursive;
+      color: var(--accent);
+      text-align:center;
+    }
+    .settings-box label {
+      display:block; margin:8px 0;
+      color: var(--text-dark);
+      font-size:0.95rem;
+    }
+    .settings-box select,
+    .settings-box input[type="number"] {
+      width:100%;
+      padding:6px 8px;
+      margin-top:4px;
+      border:1px solid var(--shadow);
+      border-radius:6px;
+      box-sizing:border-box;
+    }
+    .settings-box .actions {
+      text-align:right; margin-top:20px;
+    }
+    .settings-box .actions button {
+      padding:6px 14px; margin-left:8px;
+      border:none; border-radius:6px;
+      font-weight:500; cursor:pointer;
+      transition:background 0.2s;
+    }
+    #cancel-btn {
+      background: var(--danger); color:#fff;
+    }
+    #cancel-btn:hover {
+      background: var(--danger-dark);
+    }
+    #save-btn {
+      background: var(--accent); color:#fff;
+    }
+    #save-btn:hover {
+      background: var(--accent-dark);
+    }
+  </style>
+</head>
+<body>
+  <div class="settings-container">
+    <div class="settings-box">
+      <h2>Print Settings</h2>
+
+      <label>Fit to page:
+        <select id="fit-select">
+          <option value="auto">Auto</option>
+          <option value="fit">Fit</option>
+        </select>
+      </label>
+
+      <label>Orientation:
+        <select id="orientation-select">
+          <option value="auto">Auto</option>
+          <option>Portrait</option>
+          <option>Landscape</option>
+        </select>
+      </label>
+
+      <label>Paper size:
+        <select id="paper-size-select">
+          <option value="auto">Auto</option>
+          <option value="a4">A4</option>
+          <option value="letter">Letter</option>
+          <option value="legal">Legal</option>
+        </select>
+      </label>
+
+      <label>Copies:
+        <input type="number" id="copies-input" placeholder="Auto" min="1"/>
+      </label>
+
+      <label>Duplex printing:
+        <select id="duplex-select">
+          <option value="auto">Auto</option>
+          <option value="none">None</option>
+          <option value="long-edge">Long-edge</option>
+          <option value="short-edge">Short-edge</option>
+        </select>
+      </label>
+
+      <label>Default printer:
+        <select id="printer-select"></select>
+      </label>
+
+      <label>
+        <input type="checkbox" id="preview-checkbox-ps"/> Show print preview
+      </label>
+
+      <div class="actions">
+        <button id="cancel-btn">Cancel</button>
+        <button id="save-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./printSettings.js"></script>
+</body>
+</html>
