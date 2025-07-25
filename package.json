@@ -21,12 +21,14 @@
     "appId": "com.bfc.dashboard",
     "productName": "Brishti's Fashion Cloud",
     "files": [
-
       "index.html",
+      "printSettings.html",
       "main.js",
       "preload.js",
       "renderer.js",
+      "printSettings.js",
       "driveConnector.js",
+      "settingsManager.js",
       "printerManager.js",
       "config.js",
       "credentials.json",
